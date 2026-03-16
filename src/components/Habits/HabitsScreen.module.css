@@ -1,0 +1,83 @@
+/* src/components/Habits/HabitsScreen.module.css */
+
+.container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    height: calc(100vh - 150px);
+}
+
+.column {
+    background-color: #0d0d0d;
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #222;
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 18px;
+    font-weight: 500;
+}
+
+.item {
+    background-color: #d1d5db;
+    color: #000;
+    padding: 10px 15px;
+    border-radius: 6px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.checkCircle {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 2px solid #333;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+}
+
+.completed {
+    background-color: #4ade80; /* Using your global green */
+    border-color: #166534;
+}
+
+/* Wallet styling */
+.walletLabel {
+    font-size: 11px;
+    color: #a1a1aa;
+    text-transform: uppercase;
+    margin: 10px 0 4px 0;
+    display: block;
+}
+
+.walletInput {
+    width: 100%;
+    background-color: #2b2b30;
+    border: 1px solid #333;
+    color: white;
+    padding: 8px;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+.addBtn {
+    background-color: #365314;
+    color: #fff;
+    border: none;
+    padding: 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-top: auto;
+    font-weight: bold;
+}

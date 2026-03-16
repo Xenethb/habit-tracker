@@ -1,0 +1,122 @@
+/* src/components/Stats/StatsScreen.module.css */
+
+.layout {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.card {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 20px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+}
+
+.contributionArea {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+}
+
+.yearSelector {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    color: var(--text-muted);
+    font-size: 14px;
+    padding-top: 10px;
+}
+
+.activeYear {
+    color: var(--text-main);
+    border-left: 2px solid var(--accent-green);
+    padding-left: 8px;
+}
+
+.contributionCard {
+    flex: 1;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(53, 1fr);
+    grid-template-rows: repeat(7, 1fr);
+    gap: 3px;
+    margin-top: 15px;
+}
+
+.cell {
+    width: 11px;
+    height: 11px;
+    background-color: #2b2b30;
+    border-radius: 2px;
+}
+
+.activeHigh { background-color: var(--accent-green); }
+
+.row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+.title {
+    color: var(--accent-pink);
+    margin-bottom: 15px;
+    font-size: 16px;
+}
+
+.statList p {
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.progressItem {
+    margin-bottom: 15px;
+}
+
+.progressHeader {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+    font-size: 14px;
+}
+
+.progressBg {
+    background: #2b2b30;
+    height: 8px;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.progressFill {
+    height: 100%;
+    border-radius: 10px;
+    transition: width 0.6s ease-out;
+}
+
+.promiseCircle {
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    border: 6px solid var(--accent-pink);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 10px auto;
+    font-size: 26px;
+    font-weight: bold;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+}
+
+.quoteBox {
+    text-align: center;
+    font-style: italic;
+    padding: 25px;
+    font-size: 16px;
+    color: var(--text-muted);
+}
