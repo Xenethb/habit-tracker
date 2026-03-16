@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import styles from './HabitsScreen.module.css';
 import { Habit, Goal, Wallet } from '../../types';
 
-// 1. Define the contract for the props
 interface HabitsScreenProps {
     habits: Habit[];
     setHabits: React.Dispatch<React.SetStateAction<Habit[]>>;
@@ -20,21 +19,46 @@ export default function HabitsScreen({
                                          wallet,
                                          setWallet
                                      }: HabitsScreenProps) {
-    // Modal visibility state
     const [isHabitModalOpen, setIsHabitModalOpen] = useState(false);
     const [isGoalModalOpen, setIsGoalModalOpen] = useState(false);
 
-    // New habit input state
     const [newHabit, setNewHabit] = useState({ text: '', category: 'Health' });
     const [newGoal, setNewGoal] = useState('');
 
+    // Map category to colors
+    const categoryColors: Record<string, string> = {
+        Health: "#4ade80",
+        Education: "#60a5fa",
+        Financial: "#facc15",
+        Personal: "#fb7185"
+    };
+
     const toggleHabit = (id: number) => {
-        setHabits(habits.map(h => h.id === id ? { ...h, completed: !h.completed } : h));
+        const today = new Date().toISOString().split("T")[0];
+        setHabits(
+            habits.map(h =>
+                h.id === id
+                    ? {
+                        ...h,
+                        completed: !h.completed,
+                        date: !h.completed ? today : undefined // only set date when marking completed
+                    }
+                    : h
+            )
+        );
     };
 
     const handleAddHabit = () => {
         if (newHabit.text.trim() === '') return;
-        setHabits([...habits, { ...newHabit, id: Date.now(), completed: false }]);
+
+        const habitToAdd: Habit = {
+            ...newHabit,
+            id: Date.now(),
+            completed: false,
+            date:""
+        };
+
+        setHabits([...habits, habitToAdd]);
         setNewHabit({ text: '', category: 'Health' });
         setIsHabitModalOpen(false);
     };
@@ -54,9 +78,21 @@ export default function HabitsScreen({
                 <div className={styles.habitList}>
                     {habits.map(habit => (
                         <div key={habit.id} className={styles.item}>
-                            <div style={{display: 'flex', flexDirection: 'column'}}>
-                                <span style={{fontWeight: 500}}>{habit.text}</span>
-                                <small style={{fontSize: '10px', color: '#666'}}>{habit.category}</small>
+                            <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                <span style={{ fontWeight: 500 }}>{habit.text}</span>
+                                <small
+                                    style={{
+                                        fontSize: '10px',
+                                        color: '#fff',
+                                        backgroundColor: categoryColors[habit.category],
+                                        padding: '2px 6px',
+                                        borderRadius: '4px',
+                                        display: 'inline-block',
+                                        marginTop: '4px'
+                                    }}
+                                >
+                                    {habit.category}
+                                </small>
                             </div>
                             <div
                                 className={`${styles.checkCircle} ${habit.completed ? styles.completed : ''}`}
@@ -75,7 +111,7 @@ export default function HabitsScreen({
                 <div className={styles.header}>My Goals this year</div>
                 <div className={styles.habitList}>
                     {goals.map(goal => (
-                        <div key={goal.id} className={styles.item} style={{justifyContent: 'center'}}>{goal.text}</div>
+                        <div key={goal.id} className={styles.item} style={{ justifyContent: 'center' }}>{goal.text}</div>
                     ))}
                 </div>
                 <button className={styles.addBtn} onClick={() => setIsGoalModalOpen(true)}>+ ADD GOAL</button>
@@ -85,14 +121,13 @@ export default function HabitsScreen({
             <div className={styles.column}>
                 <div className={styles.header}>Wallet</div>
                 <div className={styles.walletContent}>
-                    {/* We use Object.keys(wallet) to loop through each financial item */}
                     {Object.keys(wallet).map(key => (
                         <div key={key}>
                             <label className={styles.walletLabel}>{key}</label>
                             <input
                                 className={styles.walletInput}
                                 value={wallet[key]}
-                                onChange={(e) => setWallet({...wallet, [key]: e.target.value})}
+                                onChange={(e) => setWallet({ ...wallet, [key]: e.target.value })}
                                 placeholder="0.00"
                             />
                         </div>
@@ -106,9 +141,19 @@ export default function HabitsScreen({
                     <div className="modal-content">
                         <h3>New Habit</h3>
                         <label>Task Name</label>
-                        <input className="modal-input" placeholder="e.g. Read 10 pages" value={newHabit.text} onChange={(e) => setNewHabit({...newHabit, text: e.target.value})} autoFocus />
+                        <input
+                            className="modal-input"
+                            placeholder="e.g. Read 10 pages"
+                            value={newHabit.text}
+                            onChange={(e) => setNewHabit({ ...newHabit, text: e.target.value })}
+                            autoFocus
+                        />
                         <label>Category</label>
-                        <select className="modal-select" value={newHabit.category} onChange={(e) => setNewHabit({...newHabit, category: e.target.value})}>
+                        <select
+                            className="modal-select"
+                            value={newHabit.category}
+                            onChange={(e) => setNewHabit({ ...newHabit, category: e.target.value })}
+                        >
                             <option value="Health">Health</option>
                             <option value="Education">Education</option>
                             <option value="Financial">Financial</option>

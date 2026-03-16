@@ -2,9 +2,11 @@
 
 export interface Habit {
     id: number;
+    name?: string;
     text: string;
     category: string;
     completed: boolean;
+    date?: string;
 }
 
 export interface Goal {
