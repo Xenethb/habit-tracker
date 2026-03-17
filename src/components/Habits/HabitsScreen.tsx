@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import styles from './HabitsScreen.module.css';
-import { Habit, Goal, Wallet } from '../../types';
+import { Habit, Goal, Wallet, Completion } from '../../types';
 
 interface HabitsScreenProps {
     habits: Habit[];
     setHabits: React.Dispatch<React.SetStateAction<Habit[]>>;
+    completions: Completion[]; // Added this
+    setCompletions: React.Dispatch<React.SetStateAction<Completion[]>>; // Added this
     goals: Goal[];
     setGoals: React.Dispatch<React.SetStateAction<Goal[]>>;
     wallet: Wallet;
@@ -14,6 +16,8 @@ interface HabitsScreenProps {
 export default function HabitsScreen({
                                          habits,
                                          setHabits,
+                                         completions,
+                                         setCompletions,
                                          goals,
                                          setGoals,
                                          wallet,
@@ -21,11 +25,9 @@ export default function HabitsScreen({
                                      }: HabitsScreenProps) {
     const [isHabitModalOpen, setIsHabitModalOpen] = useState(false);
     const [isGoalModalOpen, setIsGoalModalOpen] = useState(false);
-
     const [newHabit, setNewHabit] = useState({ text: '', category: 'Health' });
     const [newGoal, setNewGoal] = useState('');
 
-    // Map category to colors
     const categoryColors: Record<string, string> = {
         Health: "#4ade80",
         Education: "#60a5fa",
@@ -33,31 +35,30 @@ export default function HabitsScreen({
         Personal: "#fb7185"
     };
 
-    const toggleHabit = (id: number) => {
-        const today = new Date().toISOString().split("T")[0];
-        setHabits(
-            habits.map(h =>
-                h.id === id
-                    ? {
-                        ...h,
-                        completed: !h.completed,
-                        date: !h.completed ? today : undefined // only set date when marking completed
-                    }
-                    : h
-            )
-        );
+    // Helper to get today's date string
+    const getTodayStr = () => new Date().toISOString().split("T")[0];
+
+    const toggleHabit = (habitId: number) => {
+        const today = getTodayStr();
+
+        // Check if a completion record already exists for THIS habit on THIS day
+        const isAlreadyDone = completions.some(c => c.habitId === habitId && c.date === today);
+
+        if (isAlreadyDone) {
+            // UNTICK: Remove only today's record from the history
+            setCompletions(completions.filter(c => !(c.habitId === habitId && c.date === today)));
+        } else {
+            // TICK: Add a new completion record for today
+            setCompletions([...completions, { habitId, date: today }]);
+        }
     };
 
     const handleAddHabit = () => {
         if (newHabit.text.trim() === '') return;
-
         const habitToAdd: Habit = {
             ...newHabit,
             id: Date.now(),
-            completed: false,
-            date:""
         };
-
         setHabits([...habits, habitToAdd]);
         setNewHabit({ text: '', category: 'Health' });
         setIsHabitModalOpen(false);
@@ -76,32 +77,39 @@ export default function HabitsScreen({
             <div className={styles.column}>
                 <div className={styles.header}>Must do Everyday</div>
                 <div className={styles.habitList}>
-                    {habits.map(habit => (
-                        <div key={habit.id} className={styles.item}>
-                            <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                <span style={{ fontWeight: 500 }}>{habit.text}</span>
-                                <small
-                                    style={{
-                                        fontSize: '10px',
-                                        color: '#fff',
-                                        backgroundColor: categoryColors[habit.category],
-                                        padding: '2px 6px',
-                                        borderRadius: '4px',
-                                        display: 'inline-block',
-                                        marginTop: '4px'
-                                    }}
+                    {habits.map(habit => {
+                        // Check if THIS habit is completed for TODAY
+                        const isDoneToday = completions.some(
+                            c => c.habitId === habit.id && c.date === getTodayStr()
+                        );
+
+                        return (
+                            <div key={habit.id} className={styles.item}>
+                                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                    <span style={{ fontWeight: 500, color: '#000000' }}>{habit.text}</span>
+                                    <small
+                                        style={{
+                                            fontSize: '10px',
+                                            color: '#ffffff',
+                                            backgroundColor: categoryColors[habit.category],
+                                            padding: '2px 6px',
+                                            borderRadius: '4px',
+                                            display: 'inline-block',
+                                            marginTop: '4px'
+                                        }}
+                                    >
+                                        {habit.category}
+                                    </small>
+                                </div>
+                                <div
+                                    className={`${styles.checkCircle} ${isDoneToday ? styles.completed : ''}`}
+                                    onClick={() => toggleHabit(habit.id)}
                                 >
-                                    {habit.category}
-                                </small>
+                                    {isDoneToday && '✓'}
+                                </div>
                             </div>
-                            <div
-                                className={`${styles.checkCircle} ${habit.completed ? styles.completed : ''}`}
-                                onClick={() => toggleHabit(habit.id)}
-                            >
-                                {habit.completed && '✓'}
-                            </div>
-                        </div>
-                    ))}
+                        );
+                    })}
                 </div>
                 <button className={styles.addBtn} onClick={() => setIsHabitModalOpen(true)}>+ ADD HABIT</button>
             </div>
@@ -135,7 +143,7 @@ export default function HabitsScreen({
                 </div>
             </div>
 
-            {/* --- ADD HABIT MODAL --- */}
+            {/* Modals remain the same... */}
             {isHabitModalOpen && (
                 <div className="modal-overlay">
                     <div className="modal-content">
@@ -167,7 +175,6 @@ export default function HabitsScreen({
                 </div>
             )}
 
-            {/* --- ADD GOAL MODAL --- */}
             {isGoalModalOpen && (
                 <div className="modal-overlay">
                     <div className="modal-content">
