@@ -2,13 +2,13 @@
 
 export interface Habit {
     id: number;
-    text: string;     // What the habit is
-    category: string; // Health, Education, etc.
+    text: string;
+    category: string;
 }
 
 export interface Completion {
-    habitId: number;  // Connects to the Habit ID
-    date: string;     // The specific day you did it (YYYY-MM-DD)
+    habitId: number;
+    date: string;
 }
 
 export interface Goal {
@@ -31,4 +31,13 @@ export interface PlanTask {
     id: number;
     text: string;
     status: PlanStatus;
+}
+
+// --- NEW: Notes Interface ---
+export interface Note {
+    id: number;
+    title: string;
+    content: string;
+    color: string; // To store the note's background color
+    date: string;  // Created/Updated date
 }

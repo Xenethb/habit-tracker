@@ -1,27 +1,32 @@
-
 // src/components/Navigation/Navigation.tsx
-
 import styles from './Navigation.module.css';
 
 interface NavigationProps {
     currentScreen: string;
     setScreen: (screen: string) => void;
+    onTodayClick: () => void;
 }
 
-export default function Navigation({ currentScreen, setScreen }: NavigationProps) {
+export default function Navigation({ currentScreen, setScreen, onTodayClick }: NavigationProps) {
     return (
         <nav className={styles.nav}>
             {/* LEFT: Action Buttons */}
             <div className={styles.sideGroup}>
-                <button className={`${styles.actionBtn} ${styles.btnToday}`} onClick={() => alert("Today clicked")}>
+                <button
+                    className={`${styles.actionBtn} ${styles.btnToday}`}
+                    onClick={onTodayClick}
+                >
                     Today
                 </button>
-                <button className={`${styles.actionBtn} ${styles.btnNotes}`} onClick={() => alert("Notes clicked")}>
+                <button
+                    className={`${styles.actionBtn} ${styles.btnNotes}`}
+                    onClick={() => setScreen('notes')} // Updated for your next feature!
+                >
                     Notes
                 </button>
             </div>
 
-            {/* CENTER: Main Screen Tabs (Segmented Control) */}
+            {/* CENTER: Main Screen Tabs */}
             <div className={styles.tabGroup}>
                 <button
                     className={`${styles.tab} ${currentScreen === 'stats' ? styles.activeTab : ''}`}
@@ -45,9 +50,7 @@ export default function Navigation({ currentScreen, setScreen }: NavigationProps
 
             {/* RIGHT: Profile */}
             <div className={`${styles.sideGroup} ${styles.rightGroup}`}>
-                <button className={styles.profileBtn}>
-                    👤
-                </button>
+                <button className={styles.profileBtn}>👤</button>
             </div>
         </nav>
     );
