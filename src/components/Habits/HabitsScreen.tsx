@@ -35,11 +35,20 @@ export default function HabitsScreen({
     /* --- HABIT ACTIONS --- */
     const toggleHabit = (habitId: number) => {
         const today = getTodayStr();
-        const isAlreadyDone = completions.some(c => c.habitId === habitId && c.date === today);
-        if (isAlreadyDone) {
-            setCompletions(completions.filter(c => !(c.habitId === habitId && c.date === today)));
+        // Check if it's already done today
+        const existingCompletion = completions.find(c => c.habitId === habitId && c.date === today);
+
+        if (existingCompletion) {
+            // If it exists, remove it (Untick)
+            setCompletions(completions.filter(c => c.id !== existingCompletion.id));
         } else {
-            setCompletions([...completions, { habitId, date: today }]);
+            // If it's new, add it with a UNIQUE ID
+            const newCompletion: Completion = {
+                id: Date.now(), // This fixes the TS2322/TS2741 error
+                habitId: habitId,
+                date: today
+            };
+            setCompletions([...completions, newCompletion]);
         }
     };
 
