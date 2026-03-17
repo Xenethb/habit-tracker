@@ -2,19 +2,19 @@ import { useState, useEffect } from 'react';
 import Navigation from './components/Navigation/Navigation.tsx';
 import StatsScreen from './components/Stats/StatsScreen';
 import HabitsScreen from './components/Habits/HabitsScreen';
-import { Habit, Goal, Wallet, Completion } from './types'; // Import Completion
+import PlansScreen from './components/Plans/PlansScreen'; // 1. Added this import
+import { Habit, Goal, Wallet, Completion, PlanTask } from './types'; // 2. Added PlanTask here
 import './App.css';
 
 function App() {
     const [currentScreen, setCurrentScreen] = useState('stats');
 
-    // 1. HABITS: These are just the definitions (e.g., "Gym")
+    // --- PERSISTENT STATE ---
     const [habits, setHabits] = useState<Habit[]>(() => {
         const saved = localStorage.getItem('habits');
         return saved ? JSON.parse(saved) : [];
     });
 
-    // 2. COMPLETIONS: This is the history (e.g., "Gym done on 2026-03-17")
     const [completions, setCompletions] = useState<Completion[]>(() => {
         const saved = localStorage.getItem('completions');
         return saved ? JSON.parse(saved) : [];
@@ -30,13 +30,19 @@ function App() {
         return saved ? JSON.parse(saved) : { cash: '', bank: '', debtors: '', creditors: '', fd: '' };
     });
 
-    // Automatically save to computer whenever any data changes
+    const [plans, setPlans] = useState<PlanTask[]>(() => {
+        const saved = localStorage.getItem('plans');
+        return saved ? JSON.parse(saved) : [];
+    });
+
+    // Automatically save all data whenever any state changes
     useEffect(() => {
         localStorage.setItem('habits', JSON.stringify(habits));
-        localStorage.setItem('completions', JSON.stringify(completions)); // Save the history!
+        localStorage.setItem('completions', JSON.stringify(completions));
         localStorage.setItem('goals', JSON.stringify(goals));
         localStorage.setItem('wallet', JSON.stringify(wallet));
-    }, [habits, completions, goals, wallet]);
+        localStorage.setItem('plans', JSON.stringify(plans));
+    }, [habits, completions, goals, wallet, plans]);
 
     return (
         <div className="app-container">
@@ -64,10 +70,10 @@ function App() {
                 )}
 
                 {currentScreen === 'plans' && (
-                    <div style={{textAlign: 'center', marginTop: '50px'}}>
-                        <h2>My Plans Screen</h2>
-                        <p>Ready to build the Kanban board next?</p>
-                    </div>
+                    <PlansScreen
+                        plans={plans}
+                        setPlans={setPlans}
+                    />
                 )}
             </main>
         </div>

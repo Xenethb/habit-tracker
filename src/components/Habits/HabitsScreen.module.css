@@ -33,7 +33,27 @@
     justify-content: space-between;
     align-items: center;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+
+    /* New Professional Hover Logic */
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
+.item:hover {
+    border-color: #ffffff;
+    background-color: #5a5a5a;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+.item span {
+    transition: color 0.2s;
+}
+
+.item:hover span {
+    color: #ffffff;
+}
+
 
 .checkCircle {
     width: 22px;
@@ -41,6 +61,7 @@
     border-radius: 50%;
     border: 2px solid #333;
     cursor: pointer;
+    background-color: #000000;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -49,7 +70,7 @@
 
 .completed {
     background-color: #4ade80; /* Using your global green */
-    border-color: #166534;
+    border-color: #3c3a3a;
 }
 
 /* Wallet styling */

@@ -24,3 +24,11 @@ export interface Wallet {
     fd: string;
     [key: string]: string;
 }
+
+export type PlanStatus = 'to-do' | 'in-progress' | 'in-review' | 'complete';
+
+export interface PlanTask {
+    id: number;
+    text: string;
+    status: PlanStatus;
+}
