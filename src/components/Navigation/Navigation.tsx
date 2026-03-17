@@ -5,9 +5,10 @@ interface NavigationProps {
     currentScreen: string;
     setScreen: (screen: string) => void;
     onTodayClick: () => void;
+    onProfileClick: () => void;
 }
 
-export default function Navigation({ currentScreen, setScreen, onTodayClick }: NavigationProps) {
+export default function Navigation({ currentScreen, setScreen, onTodayClick, onProfileClick }: NavigationProps) {
     return (
         <nav className={styles.nav}>
             {/* LEFT: Action Buttons */}
@@ -50,7 +51,9 @@ export default function Navigation({ currentScreen, setScreen, onTodayClick }: N
 
             {/* RIGHT: Profile */}
             <div className={`${styles.sideGroup} ${styles.rightGroup}`}>
-                <button className={styles.profileBtn}>👤</button>
+                <button className={styles.profileBtn} onClick={onProfileClick}>
+                    👤
+                </button>
             </div>
         </nav>
     );

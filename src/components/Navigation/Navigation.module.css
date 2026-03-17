@@ -4,67 +4,82 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 16px 40px; /* more padding */
-    background: rgba(35, 35, 38, 0.95); /* lighter dark */
+    padding: 16px 40px;
+    background: rgba(24, 24, 27, 0.95); /* Darker for better neon contrast */
     backdrop-filter: blur(15px);
     border-bottom: 1px solid #3f3f46;
-    height: 75px; /* bigger navbar */
+    height: 75px;
     box-sizing: border-box;
 }
 
 /* LEFT / RIGHT GROUPS */
 .sideGroup {
     display: flex;
-    gap: 14px;
+    gap: 16px;
     align-items: center;
-    width: 250px;
+    width: 300px; /* Increased width to accommodate centering */
 }
 
-/* Move Today/Notes slightly right */
+/* 1. POSITIONING: Adjusted to push Today/Notes further right */
 .sideGroup:first-child {
-    margin-left: 40px;
+    margin-left: 80px; /* Increased from 40px to center it better */
 }
 
 .rightGroup {
     justify-content: flex-end;
 }
 
-/* ACTION BUTTONS */
+/* ACTION BUTTONS BASE */
 .actionBtn {
-    padding: 8px 18px; /* bigger buttons */
-    border: 1px solid #4b4b52;
+    padding: 8px 20px;
+    border: none; /* Removed the standard border */
     border-radius: 8px;
     font-size: 14px;
-    font-weight: 600;
+    font-weight: 700;
     cursor: pointer;
-    transition: all 0.2s;
-    background: #3a3a3f; /* lighter */
-    color: #ffffff;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    color: #000000; /* Dark text for better legibility on bright neon */
 }
 
-.actionBtn:hover {
-    background: #4a4a50;
-    border-color: #5b5b63;
+/* 2. NEON TODAY BUTTON */
+.btnToday {
+    background: #4ade80; /* Solid Neon Green */
+    box-shadow: 0 0 12px rgba(74, 222, 128, 0.4);
 }
 
-.btnToday { border-left: 4px solid var(--accent-green); }
-.btnNotes { border-left: 4px solid var(--accent-yellow); }
+.btnToday:hover {
+    background: #22c55e;
+    box-shadow: 0 0 20px rgba(74, 222, 128, 0.7); /* Intensify glow on hover */
+    transform: translateY(-2px);
+}
+
+/* 3. NEON NOTES BUTTON */
+.btnNotes {
+    background: #fbbf24; /* Solid Neon Gold/Yellow */
+    box-shadow: 0 0 12px rgba(251, 191, 36, 0.4);
+}
+
+.btnNotes:hover {
+    background: #f59e0b;
+    box-shadow: 0 0 20px rgba(251, 191, 36, 0.7); /* Intensify glow on hover */
+    transform: translateY(-2px);
+}
 
 /* CENTER TABS */
 .tabGroup {
     display: flex;
-    background: #1a1a1d; /* lighter for contrast */
+    background: #18181b;
     padding: 6px;
-    border-radius: 10px;
-    border: 1px solid #444;
+    border-radius: 12px;
+    border: 1px solid #27272a;
     gap: 6px;
 }
 
 .tab {
-    padding: 10px 26px; /* bigger tabs */
+    padding: 10px 26px;
     border: none;
     background: transparent;
-    color: #d4d4d8; /* lighter text */
+    color: #a1a1aa;
     font-size: 14px;
     font-weight: 600;
     border-radius: 8px;
@@ -77,26 +92,31 @@
 
 .tab:hover {
     color: #ffffff;
-    background: rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.05);
 }
 
 .activeTab {
-    background: #4a4a50 !important;
+    background: #27272a !important;
     color: #ffffff !important;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.45);
-    border: 1px solid #5b5b63;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    outline: 1px solid #3f3f46;
 }
 
 /* PROFILE BUTTON */
 .profileBtn {
-    width: 36px;
-    height: 36px;
+    width: 38px;
+    height: 38px;
     border-radius: 50%;
-    border: 1px solid #555;
+    border: 2px solid #3f3f46;
     background: #e2e8f0;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 16px;
+    font-size: 18px;
+    transition: transform 0.2s;
+}
+
+.profileBtn:hover {
+    transform: scale(1.05);
 }
