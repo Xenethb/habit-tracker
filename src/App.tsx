@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef } from 'react';
-// 1. Import Framer Motion components
 import { motion, AnimatePresence } from 'framer-motion';
 
 import Navigation from './components/Navigation/Navigation';
@@ -11,7 +10,7 @@ import TodayModal from './components/Navigation/TodayModal';
 import AccountDrawer from './components/Account/AccountDrawer';
 
 import { supabase } from './supabaseClient';
-import { Session, AuthChangeEvent, User } from '@supabase/supabase-js';
+import { User } from '@supabase/supabase-js'; // Removed Session and AuthChangeEvent
 import { Habit, Goal, Wallet, Completion, PlanTask, Note } from './types';
 import './App.css';
 
@@ -54,7 +53,70 @@ function App() {
     const lastCompletionIds = useRef<number[]>(completions.map(c => c.id));
     const lastGoalIds = useRef<number[]>(goals.map(g => g.id));
 
-    // --- EFFECT: Local Storage ---
+    // --- LOGIC: Clear all data (For Logout) ---
+    const clearLocalData = () => {
+        console.log("🧹 Clearing all local data...");
+        localStorage.clear();
+        setHabits([]);
+        setCompletions([]);
+        setGoals([]);
+        setPlans([]);
+        setNotes([]);
+        setWallet({ cash: '', bank: '', debtors: '', creditors: '', fd: '' });
+    };
+
+    // --- LOGIC: Fetch all data from Cloud (For Login) ---
+    const fetchUserData = async (userId: string) => {
+        console.log("📥 Downloading cloud data for user:", userId);
+
+        const [
+            { data: h }, { data: c }, { data: g },
+            { data: p }, { data: n }, { data: w }
+        ] = await Promise.all([
+            supabase.from('habits').select('*').eq('user_id', userId),
+            supabase.from('completions').select('*').eq('user_id', userId),
+            supabase.from('goals').select('*').eq('user_id', userId),
+            supabase.from('plans').select('*').eq('user_id', userId),
+            supabase.from('notes').select('*').eq('user_id', userId),
+            supabase.from('wallet').select('*').eq('user_id', userId).maybeSingle()
+        ]);
+
+        if (h) setHabits(h);
+        if (c) setCompletions(c);
+        if (g) setGoals(g);
+        if (p) setPlans(p);
+        if (n) setNotes(n);
+
+        if (w) {
+            const { user_id: _uid, ...pureWallet } = w;
+            setWallet(pureWallet as Wallet);
+        }
+    };
+
+    // --- EFFECT: Auth Listener & Initial Load ---
+    useEffect(() => {
+        supabase.auth.getSession().then(({ data: { session } }) => {
+            const currentUser = session?.user ?? null;
+            setUser(currentUser);
+            if (currentUser) fetchUserData(currentUser.id);
+        });
+
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+            const currentUser = session?.user ?? null;
+            setUser(currentUser);
+
+            if (event === 'SIGNED_IN' && currentUser) {
+                fetchUserData(currentUser.id);
+            }
+            if (event === 'SIGNED_OUT') {
+                clearLocalData();
+            }
+        });
+
+        return () => subscription.unsubscribe();
+    }, []);
+
+    // --- EFFECT: Local Storage Persistence ---
     useEffect(() => {
         localStorage.setItem('habits', JSON.stringify(habits));
         localStorage.setItem('completions', JSON.stringify(completions));
@@ -63,17 +125,6 @@ function App() {
         localStorage.setItem('plans', JSON.stringify(plans));
         localStorage.setItem('notes', JSON.stringify(notes));
     }, [habits, completions, goals, wallet, plans, notes]);
-
-    // --- EFFECT: Auth Listener ---
-    useEffect(() => {
-        supabase.auth.getSession().then(({ data: { session } }: { data: { session: Session | null } }) => {
-            setUser(session?.user ?? null);
-        });
-        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event: AuthChangeEvent, session: Session | null) => {
-            setUser(session?.user ?? null);
-        });
-        return () => subscription.unsubscribe();
-    }, []);
 
     // --- EFFECT: Cloud Live Sync ---
     useEffect(() => {
@@ -87,20 +138,11 @@ function App() {
                 const deletedIds = lastIdsRef.current.filter(id => !currentIds.includes(id));
 
                 if (deletedIds.length) {
-                    const { error: delError } = await supabase.from(table).delete().in('id', deletedIds);
-                    if (delError) console.error(`❌ ${table} Delete Error:`, delError.message);
+                    await supabase.from(table).delete().in('id', deletedIds);
                 }
 
                 if (currentData.length) {
-                    const { error: upError } = await supabase
-                        .from(table)
-                        .upsert(currentData.map(item => ({ ...item, user_id: user.id })));
-
-                    if (upError) {
-                        console.error(`❌ ${table} Upsert Error:`, upError.message);
-                    } else {
-                        console.log(`✅ ${table} synced successfully.`);
-                    }
+                    await supabase.from(table).upsert(currentData.map(item => ({ ...item, user_id: user.id })));
                 }
                 lastIdsRef.current = currentIds;
             };
@@ -117,10 +159,8 @@ function App() {
 
         const timeout = setTimeout(performSync, 2000);
         return () => clearTimeout(timeout);
-
     }, [habits, completions, goals, wallet, plans, notes, user]);
 
-    // 2. Define the animation variants for the screens
     const screenVariants = {
         initial: { opacity: 0, y: 10 },
         animate: { opacity: 1, y: 0 },
@@ -136,31 +176,16 @@ function App() {
                 onProfileClick={() => setIsAccountOpen(true)}
             />
 
-            <main className="main-content" style={{ position: 'relative' }}>
-                {/* 3. Wrap screens in AnimatePresence to enable exit animations */}
+            <main className="main-content">
                 <AnimatePresence mode="wait">
                     {currentScreen === 'stats' && (
-                        <motion.div
-                            key="stats"
-                            variants={screenVariants}
-                            initial="initial"
-                            animate="animate"
-                            exit="exit"
-                            transition={{ duration: 0.2 }}
-                        >
+                        <motion.div key="stats" variants={screenVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.2 }}>
                             <StatsScreen habits={habits} completions={completions} />
                         </motion.div>
                     )}
 
                     {currentScreen === 'habits' && (
-                        <motion.div
-                            key="habits"
-                            variants={screenVariants}
-                            initial="initial"
-                            animate="animate"
-                            exit="exit"
-                            transition={{ duration: 0.2 }}
-                        >
+                        <motion.div key="habits" variants={screenVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.2 }}>
                             <HabitsScreen
                                 habits={habits} setHabits={setHabits}
                                 completions={completions} setCompletions={setCompletions}
@@ -171,27 +196,13 @@ function App() {
                     )}
 
                     {currentScreen === 'plans' && (
-                        <motion.div
-                            key="plans"
-                            variants={screenVariants}
-                            initial="initial"
-                            animate="animate"
-                            exit="exit"
-                            transition={{ duration: 0.2 }}
-                        >
+                        <motion.div key="plans" variants={screenVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.2 }}>
                             <PlansScreen plans={plans} setPlans={setPlans} />
                         </motion.div>
                     )}
 
                     {currentScreen === 'notes' && (
-                        <motion.div
-                            key="notes"
-                            variants={screenVariants}
-                            initial="initial"
-                            animate="animate"
-                            exit="exit"
-                            transition={{ duration: 0.2 }}
-                        >
+                        <motion.div key="notes" variants={screenVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.2 }}>
                             <NotesScreen notes={notes} setNotes={setNotes} />
                         </motion.div>
                     )}
@@ -205,8 +216,11 @@ function App() {
                 )}
 
                 <AccountDrawer
-                    isOpen={isAccountOpen} onClose={() => setIsAccountOpen(false)}
-                    user={user} setUser={setUser}
+                    isOpen={isAccountOpen}
+                    onClose={() => setIsAccountOpen(false)}
+                    user={user}
+                    setUser={setUser}
+                    onLogout={clearLocalData}
                     localData={{ habits, plans, notes, wallet, completions, goals }}
                     setters={{ setHabits, setPlans, setNotes, setWallet, setCompletions, setGoals }}
                 />

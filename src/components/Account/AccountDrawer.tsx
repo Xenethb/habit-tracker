@@ -1,47 +1,45 @@
 import { useState } from 'react';
 import styles from './AccountDrawer.module.css';
-import { supabase } from '../../supabaseClient'; // Ensure path is correct
+import { supabase } from '../../supabaseClient';
+import { User } from '@supabase/supabase-js';
 
 interface AccountDrawerProps {
     isOpen: boolean;
     onClose: () => void;
-    user: any;
-    setUser: (user: any) => void;
+    user: User | null;
+    setUser: (user: User | null) => void;
     localData: any;
     setters: any;
+    onLogout: () => void; // Added this to match App.tsx
 }
 
-export default function AccountDrawer({ isOpen, onClose, user, setUser, localData, setters }: AccountDrawerProps) {
+export default function AccountDrawer({
+                                          isOpen,
+                                          onClose,
+                                          user,
+                                          localData,
+                                          onLogout
+                                      }: AccountDrawerProps) {
     const [isLoginView, setIsLoginView] = useState(true);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
 
-    /* --- THE SYNC LOGIC --- */
+    /* --- THE MIGRATION LOGIC (For New Signups) --- */
 
-    // 1. PUSH local data to Cloud (Used on Signup)
-    const syncLocalToCloud = async (userId: string) => {
-        const { habits, plans, notes, wallet } = localData;
+    // This pushes current local data to the cloud ONLY when a new account is created
+    const migrateLocalDataToCloud = async (userId: string) => {
+        console.log("📤 Migrating guest data to new account...");
+        const { habits, plans, notes, wallet, completions, goals } = localData;
 
-        // Helper to add user_id to local objects
         const prepare = (arr: any[]) => arr.map(item => ({ ...item, user_id: userId }));
 
-        if (habits.length) await supabase.from('habits').insert(prepare(habits));
-        if (plans.length) await supabase.from('plans').insert(prepare(plans));
-        if (notes.length) await supabase.from('notes').insert(prepare(notes));
+        if (habits.length) await supabase.from('habits').upsert(prepare(habits));
+        if (plans.length) await supabase.from('plans').upsert(prepare(plans));
+        if (notes.length) await supabase.from('notes').upsert(prepare(notes));
+        if (completions.length) await supabase.from('completions').upsert(prepare(completions));
+        if (goals.length) await supabase.from('goals').upsert(prepare(goals));
         if (wallet) await supabase.from('wallet').upsert({ ...wallet, user_id: userId });
-    };
-
-    // 2. PULL cloud data to Local (Used on Login)
-    const syncCloudToLocal = async (userId: string) => {
-        const { data: n } = await supabase.from('notes').select('*').eq('user_id', userId);
-        const { data: h } = await supabase.from('habits').select('*').eq('user_id', userId);
-        const { data: p } = await supabase.from('plans').select('*').eq('user_id', userId);
-
-        if (n) setters.setNotes(n);
-        if (h) setters.setHabits(h);
-        if (p) setters.setPlans(p);
-        // Add others (wallet, goals) similarly
     };
 
     /* --- AUTH HANDLERS --- */
@@ -49,22 +47,19 @@ export default function AccountDrawer({ isOpen, onClose, user, setUser, localDat
     const handleAuth = async () => {
         setLoading(true);
         if (isLoginView) {
-            // LOGIN
-            const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+            // LOGIN: We don't need to manually sync here anymore!
+            // App.tsx's Auth Listener will detect the login and run fetchUserData automatically.
+            const { error } = await supabase.auth.signInWithPassword({ email, password });
             if (error) alert(error.message);
-            else if (data.user) {
-                await syncCloudToLocal(data.user.id);
-                setUser(data.user);
-                onClose();
-            }
+            else onClose();
         } else {
             // SIGN UP
             const { data, error } = await supabase.auth.signUp({ email, password });
             if (error) alert(error.message);
             else if (data.user) {
-                await syncLocalToCloud(data.user.id);
-                setUser(data.user);
-                alert("Account created! Local data synced to cloud.");
+                // If they have local data, push it to their new cloud account
+                await migrateLocalDataToCloud(data.user.id);
+                alert("Account created! Your data is now synced to the cloud.");
                 onClose();
             }
         }
@@ -72,12 +67,19 @@ export default function AccountDrawer({ isOpen, onClose, user, setUser, localDat
     };
 
     const handleGoogleLogin = async () => {
-        await supabase.auth.signInWithOAuth({ provider: 'google' });
+        await supabase.auth.signInWithOAuth({
+            provider: 'google',
+            options: { redirectTo: window.location.origin }
+        });
     };
 
     const handleLogout = async () => {
-        await supabase.auth.signOut();
-        setUser(null);
+        const { error } = await supabase.auth.signOut();
+        if (error) console.error("Logout error:", error.message);
+
+        // App.tsx's Auth Listener handles the rest, but we call this
+        // as a backup to ensure state is wiped immediately.
+        onLogout();
         onClose();
     };
 
