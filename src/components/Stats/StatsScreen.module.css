@@ -152,12 +152,16 @@
     font-weight:bold;
 }
 
-.quoteBox{
-    text-align:center;
-    font-style:italic;
-    padding:26px;
-    font-size:16px;
-    color:var(--text-muted);
+.quoteBox {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 30px;
+    background: linear-gradient(145deg, #18181b, #09090b);
+    border: 1px solid #27272a;
+    font-style: italic;
+    margin-top: 20px;
 }
 
 /* StatsScreen.module.css */
@@ -224,4 +228,20 @@
     color: var(--text-muted);
     font-style: italic;
     font-size: 13px;
+}
+
+.quoteText {
+    font-size: 1.1rem;
+    color: #e4e4e7;
+    margin-bottom: 12px;
+    line-height: 1.6;
+}
+
+.quoteAuthor {
+    font-size: 0.9rem;
+    color: #4ade80; /* Neon green to match your theme */
+    font-weight: 600;
+    font-style: normal; /* Author name shouldn't be italic */
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }

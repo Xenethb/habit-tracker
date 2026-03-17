@@ -16,13 +16,15 @@ interface HabitsScreenProps {
 export default function HabitsScreen({
                                          habits, setHabits, completions, setCompletions, goals, setGoals, wallet, setWallet
                                      }: HabitsScreenProps) {
+    // --- MODAL STATES ---
     const [isHabitModalOpen, setIsHabitModalOpen] = useState(false);
     const [isGoalModalOpen, setIsGoalModalOpen] = useState(false);
 
-    // Edit States
+    // --- EDIT STATES ---
     const [editingHabit, setEditingHabit] = useState<Habit | null>(null);
     const [editingGoal, setEditingGoal] = useState<Goal | null>(null);
 
+    // --- NEW ITEM STATES ---
     const [newHabit, setNewHabit] = useState({ text: '', category: 'Health' });
     const [newGoal, setNewGoal] = useState('');
 
@@ -32,19 +34,24 @@ export default function HabitsScreen({
 
     const getTodayStr = () => new Date().toISOString().split("T")[0];
 
+    /* --- WALLET LOGIC (NUMERIC ONLY) --- */
+    const handleWalletChange = (key: string, value: string) => {
+        // Only allows digits and a single decimal point
+        if (/^\d*\.?\d*$/.test(value) || value === '') {
+            setWallet({ ...wallet, [key]: value });
+        }
+    };
+
     /* --- HABIT ACTIONS --- */
     const toggleHabit = (habitId: number) => {
         const today = getTodayStr();
-        // Check if it's already done today
         const existingCompletion = completions.find(c => c.habitId === habitId && c.date === today);
 
         if (existingCompletion) {
-            // If it exists, remove it (Untick)
             setCompletions(completions.filter(c => c.id !== existingCompletion.id));
         } else {
-            // If it's new, add it with a UNIQUE ID
             const newCompletion: Completion = {
-                id: Date.now(), // This fixes the TS2322/TS2741 error
+                id: Date.now(),
                 habitId: habitId,
                 date: today
             };
@@ -60,7 +67,7 @@ export default function HabitsScreen({
 
     const handleDeleteHabit = (id: number) => {
         setHabits(habits.filter(h => h.id !== id));
-        setCompletions(completions.filter(c => c.habitId !== id)); // Clean history
+        setCompletions(completions.filter(c => c.habitId !== id));
         setEditingHabit(null);
     };
 
@@ -117,7 +124,9 @@ export default function HabitsScreen({
                         );
                     })}
                 </div>
-                <button className={styles.addBtn} onClick={() => setIsHabitModalOpen(true)}>+ ADD HABIT</button>
+                <button className={`${styles.addBtn} ${styles.neonGreen}`} onClick={() => setIsHabitModalOpen(true)}>
+                    + ADD HABIT
+                </button>
             </div>
 
             {/* Column 2: Goals */}
@@ -125,12 +134,14 @@ export default function HabitsScreen({
                 <div className={styles.header}>My Goals this year</div>
                 <div className={styles.habitList}>
                     {goals.map(goal => (
-                        <div key={goal.id} className={styles.item} onClick={() => setEditingGoal(goal)} style={{ justifyContent: 'center' }}>
+                        <div key={goal.id} className={styles.item} onClick={() => setEditingGoal(goal)} style={{ justifyContent: 'center', color: '#ffffff', fontWeight: 350 }}>
                             {goal.text}
                         </div>
                     ))}
                 </div>
-                <button className={styles.addBtn} onClick={() => setIsGoalModalOpen(true)}>+ ADD GOAL</button>
+                <button className={`${styles.addBtn} ${styles.neonYellow}`} onClick={() => setIsGoalModalOpen(true)}>
+                    + ADD GOAL
+                </button>
             </div>
 
             {/* Column 3: Wallet */}
@@ -140,13 +151,18 @@ export default function HabitsScreen({
                     {Object.keys(wallet).map(key => (
                         <div key={key}>
                             <label className={styles.walletLabel}>{key}</label>
-                            <input className={styles.walletInput} value={wallet[key]} onChange={(e) => setWallet({ ...wallet, [key]: e.target.value })} placeholder="0.00" />
+                            <input
+                                className={styles.walletInput}
+                                value={wallet[key]}
+                                onChange={(e) => handleWalletChange(key, e.target.value)}
+                                placeholder="0.00"
+                            />
                         </div>
                     ))}
                 </div>
             </div>
 
-            {/* --- MODALS (Add/Edit) --- */}
+            {/* --- MODALS --- */}
 
             {/* New Habit Modal */}
             {isHabitModalOpen && (
@@ -196,7 +212,7 @@ export default function HabitsScreen({
                 </div></div>
             )}
 
-            {/* Goal Add Modal omitted for brevity, logic is same as habit add */}
+            {/* New Goal Modal */}
             {isGoalModalOpen && (
                 <div className="modal-overlay"><div className="modal-content">
                     <h3>New Goal</h3>

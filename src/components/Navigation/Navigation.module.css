@@ -5,11 +5,13 @@
     justify-content: space-between;
     align-items: center;
     padding: 16px 40px;
-    background: rgba(24, 24, 27, 0.95); /* Darker for better neon contrast */
+    background: rgba(12, 12, 14, 0.98); /* Slightly darker for deeper neon contrast */
     backdrop-filter: blur(15px);
-    border-bottom: 1px solid #3f3f46;
+    border-bottom: 1px solid #27272a;
     height: 75px;
     box-sizing: border-box;
+    position: relative;
+    z-index: 50;
 }
 
 /* LEFT / RIGHT GROUPS */
@@ -17,51 +19,48 @@
     display: flex;
     gap: 16px;
     align-items: center;
-    width: 300px; /* Increased width to accommodate centering */
+    width: 300px;
 }
 
-/* 1. POSITIONING: Adjusted to push Today/Notes further right */
 .sideGroup:first-child {
-    margin-left: 80px; /* Increased from 40px to center it better */
+    margin-left: 20px; /* Adjusted for better balance */
 }
 
 .rightGroup {
     justify-content: flex-end;
 }
 
-/* ACTION BUTTONS BASE */
+/* ACTION BUTTONS */
 .actionBtn {
     padding: 8px 20px;
-    border: none; /* Removed the standard border */
+    border: none;
     border-radius: 8px;
     font-size: 14px;
     font-weight: 700;
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    color: #000000; /* Dark text for better legibility on bright neon */
+    color: #000000;
 }
 
-/* 2. NEON TODAY BUTTON */
 .btnToday {
-    background: #4ade80; /* Solid Neon Green */
-    box-shadow: 0 0 12px rgba(74, 222, 128, 0.4);
+    background: #4ade80;
+    box-shadow: 0 0 15px rgba(74, 222, 128, 0.4);
 }
 
 .btnToday:hover {
     background: #22c55e;
-    box-shadow: 0 0 20px rgba(74, 222, 128, 0.7); /* Intensify glow on hover */
+    box-shadow: 0 0 25px rgba(74, 222, 128, 0.8);
     transform: translateY(-2px);
 }
 
-/* 3. NEON NOTES BUTTON */
 .btnNotes {
-    background: #fbbf24; /* Solid Neon Gold/Yellow */
-    box-shadow: 0 0 12px rgba(251, 191, 36, 0.4);
+    background: #fbbf24;
+    box-shadow: 0 0 15px rgba(251, 191, 36, 0.4);
 }
 
 .btnNotes:hover {
     background: #f59e0b;
-    box-shadow: 0 0 20px rgba(251, 191, 36, 0.7); /* Intensify glow on hover */
+    box-shadow: 0 0 25px rgba(251, 191, 36, 0.8);
     transform: translateY(-2px);
 }
 
@@ -69,54 +68,72 @@
 .tabGroup {
     display: flex;
     background: #18181b;
-    padding: 6px;
-    border-radius: 12px;
+    padding: 4px;
+    border-radius: 14px;
     border: 1px solid #27272a;
-    gap: 6px;
+    gap: 4px;
+    position: relative;
 }
 
 .tab {
-    padding: 10px 26px;
+    padding: 10px 24px;
     border: none;
     background: transparent;
-    color: #a1a1aa;
+    color: #71717a;
     font-size: 14px;
     font-weight: 600;
-    border-radius: 8px;
+    border-radius: 10px;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: color 0.3s ease;
     display: flex;
     align-items: center;
     gap: 8px;
+    position: relative; /* CRITICAL for the indicator positioning */
 }
 
 .tab:hover {
     color: #ffffff;
-    background: rgba(255, 255, 255, 0.05);
 }
 
 .activeTab {
-    background: #27272a !important;
     color: #ffffff !important;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-    outline: 1px solid #3f3f46;
+}
+
+/* --- THE NEON SLIDING INDICATOR --- */
+.tabIndicator {
+    position: absolute;
+    bottom: -6px; /* Positioned slightly below the text */
+    left: 15%;
+    right: 15%;
+    height: 3px;
+    background: #ffffff; /* The core of the light */
+    border-radius: 20px;
+    /* This multi-layer shadow creates the "Glow" */
+    box-shadow:
+            0 0 8px #fff,            /* Inner glow */
+            0 0 15px #3b82f6,        /* Mid glow (using a crisp blue) */
+            0 0 30px #3b82f6;        /* Large outer atmospheric glow */
+    z-index: 10;
 }
 
 /* PROFILE BUTTON */
 .profileBtn {
-    width: 38px;
-    height: 38px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
-    border: 2px solid #3f3f46;
-    background: #e2e8f0;
+    border: 2px solid #3c833c;
+    background: #3f3f46;
+    color: white;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 18px;
-    transition: transform 0.2s;
+    transition: all 0.3s ease;
 }
 
 .profileBtn:hover {
+    border-color: #ffffff;
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
     transform: scale(1.05);
 }

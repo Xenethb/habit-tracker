@@ -1,4 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
+// 1. Import Framer Motion components
+import { motion, AnimatePresence } from 'framer-motion';
+
 import Navigation from './components/Navigation/Navigation';
 import StatsScreen from './components/Stats/StatsScreen';
 import HabitsScreen from './components/Habits/HabitsScreen';
@@ -83,13 +86,11 @@ function App() {
                 const currentIds = currentData.map(item => item.id);
                 const deletedIds = lastIdsRef.current.filter(id => !currentIds.includes(id));
 
-                // 1. Handle Deletes
                 if (deletedIds.length) {
                     const { error: delError } = await supabase.from(table).delete().in('id', deletedIds);
                     if (delError) console.error(`❌ ${table} Delete Error:`, delError.message);
                 }
 
-                // 2. Handle Upserts
                 if (currentData.length) {
                     const { error: upError } = await supabase
                         .from(table)
@@ -97,8 +98,6 @@ function App() {
 
                     if (upError) {
                         console.error(`❌ ${table} Upsert Error:`, upError.message);
-                        // This will help us see exactly what keys we are sending
-                        console.log(`Payload Example for ${table}:`, { ...currentData[0], user_id: user.id });
                     } else {
                         console.log(`✅ ${table} synced successfully.`);
                     }
@@ -106,7 +105,6 @@ function App() {
                 lastIdsRef.current = currentIds;
             };
 
-            // Run sync for all tables
             await Promise.all([
                 syncTable('habits', habits, lastHabitIds),
                 syncTable('plans', plans, lastPlanIds),
@@ -122,6 +120,13 @@ function App() {
 
     }, [habits, completions, goals, wallet, plans, notes, user]);
 
+    // 2. Define the animation variants for the screens
+    const screenVariants = {
+        initial: { opacity: 0, y: 10 },
+        animate: { opacity: 1, y: 0 },
+        exit: { opacity: 0, y: -10 },
+    };
+
     return (
         <div className="app-container">
             <Navigation
@@ -130,18 +135,67 @@ function App() {
                 onTodayClick={() => setIsTodayModalOpen(true)}
                 onProfileClick={() => setIsAccountOpen(true)}
             />
-            <main className="main-content">
-                {currentScreen === 'stats' && <StatsScreen habits={habits} completions={completions} />}
-                {currentScreen === 'habits' && (
-                    <HabitsScreen
-                        habits={habits} setHabits={setHabits}
-                        completions={completions} setCompletions={setCompletions}
-                        goals={goals} setGoals={setGoals}
-                        wallet={wallet} setWallet={setWallet}
-                    />
-                )}
-                {currentScreen === 'plans' && <PlansScreen plans={plans} setPlans={setPlans} />}
-                {currentScreen === 'notes' && <NotesScreen notes={notes} setNotes={setNotes} />}
+
+            <main className="main-content" style={{ position: 'relative' }}>
+                {/* 3. Wrap screens in AnimatePresence to enable exit animations */}
+                <AnimatePresence mode="wait">
+                    {currentScreen === 'stats' && (
+                        <motion.div
+                            key="stats"
+                            variants={screenVariants}
+                            initial="initial"
+                            animate="animate"
+                            exit="exit"
+                            transition={{ duration: 0.2 }}
+                        >
+                            <StatsScreen habits={habits} completions={completions} />
+                        </motion.div>
+                    )}
+
+                    {currentScreen === 'habits' && (
+                        <motion.div
+                            key="habits"
+                            variants={screenVariants}
+                            initial="initial"
+                            animate="animate"
+                            exit="exit"
+                            transition={{ duration: 0.2 }}
+                        >
+                            <HabitsScreen
+                                habits={habits} setHabits={setHabits}
+                                completions={completions} setCompletions={setCompletions}
+                                goals={goals} setGoals={setGoals}
+                                wallet={wallet} setWallet={setWallet}
+                            />
+                        </motion.div>
+                    )}
+
+                    {currentScreen === 'plans' && (
+                        <motion.div
+                            key="plans"
+                            variants={screenVariants}
+                            initial="initial"
+                            animate="animate"
+                            exit="exit"
+                            transition={{ duration: 0.2 }}
+                        >
+                            <PlansScreen plans={plans} setPlans={setPlans} />
+                        </motion.div>
+                    )}
+
+                    {currentScreen === 'notes' && (
+                        <motion.div
+                            key="notes"
+                            variants={screenVariants}
+                            initial="initial"
+                            animate="animate"
+                            exit="exit"
+                            transition={{ duration: 0.2 }}
+                        >
+                            <NotesScreen notes={notes} setNotes={setNotes} />
+                        </motion.div>
+                    )}
+                </AnimatePresence>
 
                 {isTodayModalOpen && (
                     <TodayModal

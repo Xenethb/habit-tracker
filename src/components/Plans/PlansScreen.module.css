@@ -11,7 +11,7 @@
 .column {
     flex: 1;
     min-width: 280px;
-    background-color: #2b2929; /* Cleaner Notion look */
+    background-color: #121212; /* Cleaner Notion look */
     border-radius: 12px;
     display: flex;
     flex-direction: column;

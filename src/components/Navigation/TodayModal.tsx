@@ -13,7 +13,6 @@ interface TodayModalProps {
 export default function TodayModal({ habits, completions, setCompletions, onClose }: TodayModalProps) {
     const [animateIn, setAnimateIn] = useState(false);
 
-    // Trigger animation with a slight delay
     useEffect(() => {
         const timer = setTimeout(() => setAnimateIn(true), 10);
         return () => clearTimeout(timer);
@@ -21,12 +20,24 @@ export default function TodayModal({ habits, completions, setCompletions, onClos
 
     const today = new Date().toISOString().split("T")[0];
 
+    /* --- UPDATED TOGGLE LOGIC --- */
     const toggleHabit = (habitId: number) => {
-        const isAlreadyDone = completions.some(c => c.habitId === habitId && c.date === today);
-        if (isAlreadyDone) {
-            setCompletions(completions.filter(c => !(c.habitId === habitId && c.date === today)));
+        // Find if a completion for this habit already exists for today
+        const existingCompletion = completions.find(
+            c => c.habitId === habitId && c.date === today
+        );
+
+        if (existingCompletion) {
+            // UNTICK: Remove by the unique id
+            setCompletions(completions.filter(c => c.id !== existingCompletion.id));
         } else {
-            setCompletions([...completions, { habitId, date: today }]);
+            // TICK: Create a new completion with a unique id
+            const newCompletion: Completion = {
+                id: Date.now(), // This satisfies the TypeScript error
+                habitId: habitId,
+                date: today
+            };
+            setCompletions([...completions, newCompletion]);
         }
     };
 

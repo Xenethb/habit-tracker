@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import styles from './StatsScreen.module.css';
 import { Habit, Completion } from '../../types';
+import { MOTIVATIONAL_QUOTES, Quote } from "../../data/quotes";
 
 interface StatsScreenProps {
     habits: Habit[];
@@ -25,6 +26,8 @@ export default function StatsScreen({ habits, completions }: StatsScreenProps) {
     const completionsInYear = useMemo(() => {
         return completions.filter(c => new Date(c.date).getFullYear() === selectedYear);
     }, [completions, selectedYear]);
+
+    const [quote, setQuote] = useState<Quote>(MOTIVATIONAL_QUOTES[0]);
 
     /* ---------------- STREAK LOGIC (UNIQUE CALENDAR DAYS) ---------------- */
     const streak = useMemo(() => {
@@ -84,11 +87,17 @@ export default function StatsScreen({ habits, completions }: StatsScreenProps) {
     const dailyTargetPercent = habits.length > 0 ? Math.round((habitsDoneToday / habits.length) * 100) : 0;
 
     const [animatedProgress, setAnimatedProgress] = useState(0);
+
     useEffect(() => {
         setAnimatedProgress(0);
         const timeout = setTimeout(() => setAnimatedProgress(dailyTargetPercent), 200);
         return () => clearTimeout(timeout);
     }, [dailyTargetPercent]);
+
+    useEffect(() => {
+        const randomIndex = Math.floor(Math.random() * MOTIVATIONAL_QUOTES.length);
+        setQuote(MOTIVATIONAL_QUOTES[randomIndex]);
+    }, []); // Empty array ensures this only runs once when the screen opens
 
     return (
         <div className={styles.layout}>
@@ -165,7 +174,8 @@ export default function StatsScreen({ habits, completions }: StatsScreenProps) {
             </div>
 
             <div className={`${styles.card} ${styles.quoteBox}`}>
-                "Your habits are the atoms of your lives. Each one is a fundamental unit that contributes to your overall improvement."
+                <p className={styles.quoteText}>"{quote.text}"</p>
+                <span className={styles.quoteAuthor}>— {quote.author}</span>
             </div>
         </div>
     );

@@ -1,4 +1,4 @@
-// src/components/Navigation/Navigation.tsx
+import { motion } from 'framer-motion';
 import styles from './Navigation.module.css';
 
 interface NavigationProps {
@@ -9,6 +9,12 @@ interface NavigationProps {
 }
 
 export default function Navigation({ currentScreen, setScreen, onTodayClick, onProfileClick }: NavigationProps) {
+    const tabs = [
+        { id: 'stats', label: '📊 Stats' },
+        { id: 'habits', label: '≡ Habits' },
+        { id: 'plans', label: '📄 My Plans' }
+    ];
+
     return (
         <nav className={styles.nav}>
             {/* LEFT: Action Buttons */}
@@ -20,8 +26,8 @@ export default function Navigation({ currentScreen, setScreen, onTodayClick, onP
                     Today
                 </button>
                 <button
-                    className={`${styles.actionBtn} ${styles.btnNotes}`}
-                    onClick={() => setScreen('notes')} // Updated for your next feature!
+                    className={`${styles.actionBtn} ${styles.btnNotes} ${currentScreen === 'notes' ? styles.activeAction : ''}`}
+                    onClick={() => setScreen('notes')}
                 >
                     Notes
                 </button>
@@ -29,30 +35,30 @@ export default function Navigation({ currentScreen, setScreen, onTodayClick, onP
 
             {/* CENTER: Main Screen Tabs */}
             <div className={styles.tabGroup}>
-                <button
-                    className={`${styles.tab} ${currentScreen === 'stats' ? styles.activeTab : ''}`}
-                    onClick={() => setScreen('stats')}
-                >
-                    📊 Stats
-                </button>
-                <button
-                    className={`${styles.tab} ${currentScreen === 'habits' ? styles.activeTab : ''}`}
-                    onClick={() => setScreen('habits')}
-                >
-                    ≡ Habits
-                </button>
-                <button
-                    className={`${styles.tab} ${currentScreen === 'plans' ? styles.activeTab : ''}`}
-                    onClick={() => setScreen('plans')}
-                >
-                    📄 My Plans
-                </button>
+                {tabs.map((tab) => (
+                    <button
+                        key={tab.id}
+                        className={`${styles.tab} ${currentScreen === tab.id ? styles.activeTab : ''}`}
+                        onClick={() => setScreen(tab.id)}
+                    >
+                        {tab.label}
+
+                        {/* THE GLOW INDICATOR */}
+                        {currentScreen === tab.id && (
+                            <motion.div
+                                layoutId="nav-glow"
+                                className={styles.tabIndicator}
+                                transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                            />
+                        )}
+                    </button>
+                ))}
             </div>
 
             {/* RIGHT: Profile */}
             <div className={`${styles.sideGroup} ${styles.rightGroup}`}>
                 <button className={styles.profileBtn} onClick={onProfileClick}>
-                    👤
+                    👻
                 </button>
             </div>
         </nav>
