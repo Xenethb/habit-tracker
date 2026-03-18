@@ -40,7 +40,7 @@ Styling: CSS Modules with Neon-Atmospheric effects
 
 🚀 Access the App
 🌐 Web Version
-Live on Netlify: habit-tracker12345.netlify.app
+Live on Netlify: [habit-tracker12345.netlify.app](https://habit-tracker12345.netlify.app)
 
 💻 Desktop Version
 To build the Microsoft Windows application (.exe):
