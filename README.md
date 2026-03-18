@@ -68,3 +68,22 @@ Run Dev Server:
 
 Bash
 npm run dev
+
+
+## 📸 Screenshots
+
+### Dashboard & Stats
+![Stats Screen](./screenshots/stats.png)
+
+### Habit Management
+![Habits Screen](./screenshots/habits.png)
+
+### my plans Management
+![Habits Screen](./screenshots/myplans.png)
+
+### Notes Management
+![Habits Screen](./screenshots/notes.png)
+
+### today Management
+![Habits Screen](./screenshots/todays.png)
+
