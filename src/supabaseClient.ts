@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = 'https://fqpxhblehqbstagvfypj.supabase.co'
-const supabaseAnonKey = 'sb_publishable_-snOoFI_IhK0oM2s_BXYXw_PXitOhMV'
+// 'import.meta.env' is the special way Vite reads your .env file
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey)
